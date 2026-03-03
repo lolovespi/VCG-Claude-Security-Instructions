@@ -93,6 +93,53 @@ HEALTHCHECK CMD curl -f http://localhost:3000/health || exit 1
 - Rotate CI/CD credentials on a defined schedule.
 - Restrict secret access to specific environments and branches.
 
+## Serverless Security (Lambda, Cloud Functions, Azure Functions)
+
+- Apply least-privilege IAM roles to each function. Never share a single overpermissioned role across functions.
+- Set memory limits, timeout limits, and concurrency limits to prevent resource exhaustion and runaway costs.
+- Retrieve secrets from the platform's secrets manager at runtime. Never embed secrets in environment variables configured in the console or deployment manifests.
+- Attach functions to a VPC when they need to access private resources. Restrict outbound access with security groups.
+- Enable function-level logging and tracing (CloudWatch, Cloud Logging, Application Insights).
+- Pin runtime versions. Do not use `latest` or auto-updating runtimes in production.
+- Validate all event payloads (API Gateway, S3, SQS, etc.) — treat as untrusted input.
+
+## Web Application Firewall and DDoS Protection
+
+- Require a WAF (AWS WAF, Cloudflare WAF, Azure Front Door, GCP Cloud Armor) for all public-facing web applications and APIs.
+- Configure WAF rules to block OWASP Top 10 attack patterns (SQLi, XSS, path traversal, etc.).
+- Enable DDoS protection (AWS Shield, Azure DDoS Protection, GCP Cloud Armor) for production workloads.
+- Set up rate limiting at the edge (WAF/CDN layer) in addition to application-level rate limiting.
+
+## Backup and Disaster Recovery
+
+- Encrypt all backups at rest using KMS-managed keys.
+- Store backups in a separate region or account from the primary workload.
+- Test restore procedures on a regular schedule. Untested backups are not backups.
+- Set retention policies aligned with compliance requirements.
+- Enable cross-region replication for critical data stores.
+- Use immutable backups (S3 Object Lock, Azure Immutable Blob Storage) to protect against ransomware.
+
+## Multi-Account and Environment Isolation
+
+- Use separate cloud accounts or projects per environment (dev, staging, production).
+- Never allow dev/staging workloads to access production data stores or secrets.
+- Use AWS Organizations, Azure Management Groups, or GCP Organization Policies for centralized governance.
+- Apply Service Control Policies (SCPs) or Organization Policies to enforce guardrails across accounts.
+
+## DNS Security
+
+- Enable DNSSEC for public-facing domains.
+- Use private DNS zones (Route 53 Private Hosted Zones, Azure Private DNS, GCP Cloud DNS Private Zones) for internal service discovery.
+- Do not expose internal service hostnames in public DNS records.
+- Use CAA records to restrict which CAs can issue certificates for your domains.
+
+## Egress Filtering
+
+- Restrict outbound traffic from containers, VMs, and serverless functions to known-good destinations.
+- Use VPC egress rules, security groups, or network policies to block unnecessary outbound access.
+- Route outbound internet traffic through a NAT gateway or forward proxy for logging and inspection.
+- Alert on unexpected outbound connections, especially to unusual ports or IP ranges.
+
 ## Secure Logging and Monitoring
 
 - Log authentication events, authorization failures, and configuration changes.

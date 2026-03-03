@@ -5,11 +5,8 @@ Quick-reference commands for security checks. Run these before committing code.
 ## Pre-Commit Secret Scanning
 
 ```bash
-# Check for hardcoded secrets before committing
+# Quick grep check for hardcoded secrets before committing
 git diff --cached | grep -E "(password|secret|api_key|apikey|token)" -i
-
-# Use git-secrets for automated scanning
-git secrets --scan
 ```
 
 ## Git Configuration Verification
@@ -75,10 +72,66 @@ kubesec scan deployment.yaml
 cfn-lint template.yaml
 ```
 
+## SAST (Static Application Security Testing)
+
+```bash
+# Run Semgrep with OWASP rules
+semgrep --config=p/owasp-top-ten .
+
+# Run CodeQL (via GitHub Actions - add to .github/workflows/)
+# See: https://docs.github.com/en/code-security/code-scanning/creating-an-advanced-setup-for-code-scanning
+
+# Run Bandit for Python
+bandit -r . -f json -o bandit-report.json
+
+# Run ESLint security plugin for JavaScript/TypeScript
+npx eslint --plugin security .
+```
+
+## DAST (Dynamic Application Security Testing)
+
+```bash
+# Run OWASP ZAP baseline scan against staging
+docker run -t ghcr.io/zaproxy/zaproxy:stable zap-baseline.py -t https://staging.example.com
+
+# Run Nuclei with common vulnerability templates
+nuclei -u https://staging.example.com -t cves/ -t vulnerabilities/
+```
+
+## Secret Scanning (Pre-Commit)
+
+```bash
+# Install and run Gitleaks
+gitleaks detect --source . --report-path gitleaks-report.json
+
+# Install and run TruffleHog
+trufflehog filesystem . --json > trufflehog-report.json
+
+# Run git-secrets (AWS-focused)
+git secrets --scan
+```
+
 ## GitHub Actions Security
 
 ```bash
-# Audit GitHub Actions for pinned versions
-grep -r "uses:" .github/workflows/ | grep -v "@[a-f0-9]\{40\}" | grep -v "\.yml"
+# Audit GitHub Actions for non-SHA-pinned versions
+# This finds any "uses:" lines that reference a tag (e.g., @v4) instead of a commit SHA
+grep -rn "uses:.*@" .github/workflows/*.yml | grep -vE "@[a-f0-9]{40}"
 # Any results here are using tag-based references instead of SHA pins
+```
+
+## Dependency Audit
+
+```bash
+# Audit npm dependencies for vulnerabilities
+npm audit --json > npm-audit-report.json
+
+# Audit Python dependencies
+pip-audit --format json --output pip-audit-report.json
+
+# Audit Go dependencies
+govulncheck ./...
+
+# Audit Rust dependencies
+cargo audit
 ```
