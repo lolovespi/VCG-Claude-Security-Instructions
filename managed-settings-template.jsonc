@@ -36,6 +36,11 @@
       "Bash(netcat:*)",
       "Bash(telnet:*)",
       "Bash(base64:*)",
+      "Bash(env:*)",
+      "Bash(printenv:*)",
+      "Bash(set | :*)",
+      "Write(**/.env)",
+      "Write(**/.env.*)",
       "Read(**/.env)",
       "Read(**/.env.*)",
       "Read(**/*secret*)",
@@ -70,7 +75,17 @@
       "Bash(mysql:*)",
       "Bash(mongosh:*)",
       "Bash(pkill:*)",
-      "Bash(kill:*)"
+      "Bash(kill:*)",
+      "Bash(python -c:*)",
+      "Bash(python3 -c:*)",
+      "Bash(node -e:*)",
+      "Bash(node --eval:*)",
+      "Bash(ruby -e:*)",
+      "Bash(perl -e:*)",
+      "Bash(php -r:*)",
+      "Bash(tar:*)",
+      "Bash(zip:*)",
+      "Bash(xargs:*)"
     ]
   },
 

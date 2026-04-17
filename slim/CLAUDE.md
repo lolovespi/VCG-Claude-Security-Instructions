@@ -42,6 +42,12 @@ Rules:
 
 For implementation patterns, see: `/docs/security-patterns/secrets-management.md`
 
+### Secret Lifecycle
+6. Rotate secrets on a defined cadence: API keys every 90 days, certificates every 365 days, immediately on suspected compromise.
+7. Scope each secret to the minimum service and environment. Never share secrets across dev/staging/prod.
+8. Document revocation procedures: how to invalidate a compromised secret and who to notify.
+9. Use automated rotation where supported (AWS Secrets Manager rotation, Azure Key Vault rotation policies).
+
 ## Open Source License Policy (CRITICAL)
 
 **Approved (safe to use):** MIT, Apache 2.0, BSD (2-clause, 3-clause), ISC
@@ -104,6 +110,18 @@ All generated web application code must follow these rules:
 - Block requests to internal/private IP ranges: `127.0.0.0/8`, `10.0.0.0/8`, `172.16.0.0/12`, `192.168.0.0/16`, `169.254.0.0/16`, `0.0.0.0`, `::1`, `fe80::/10`.
 - Block cloud metadata endpoints: `169.254.169.254`, `fd00:ec2::254`.
 
+### Secure Deserialization
+- Never deserialize untrusted data with unsafe deserializers: Java `ObjectInputStream`, Python `pickle`/`shelve`/`marshal`, PHP `unserialize()`, Ruby `Marshal.load`.
+- Use safe formats (JSON, Protocol Buffers, MessagePack) and validate schemas before processing.
+- In Node.js, guard against prototype pollution: validate `__proto__`, `constructor`, and `prototype` keys in user input.
+
+### File Uploads and Downloads
+- Validate file type by content (magic bytes), not just extension.
+- Enforce size limits. Reject files exceeding the limit before fully reading them.
+- Store uploaded files outside the webroot. Serve via a separate handler with appropriate headers.
+- Generate random filenames. Never use the client-provided filename for storage.
+- Set `Content-Disposition: attachment` on file download responses to prevent inline execution.
+
 ### Security Headers
 - Set `Content-Security-Policy` to restrict script and resource origins.
 - Set `Strict-Transport-Security` with `max-age=31536000; includeSubDomains`.
@@ -114,6 +132,17 @@ All generated web application code must follow these rules:
 ### Password Storage
 - Never store passwords in plaintext or with reversible encryption.
 - Use Argon2id, bcrypt, or scrypt with appropriate cost factors. Do not use MD5, SHA-1, or SHA-256 alone for password hashing.
+
+### Session Management
+- Use Secure, HttpOnly, SameSite cookies for session identifiers.
+- Regenerate session IDs on login and privilege escalation.
+- Enforce idle timeouts and absolute session expiry.
+- Invalidate sessions on logout (server-side).
+
+### Client-Side Storage Security
+- Never store tokens, credentials, or PII in `localStorage` or `sessionStorage`.
+- Use `HttpOnly`, `Secure`, `SameSite` cookies for authentication tokens.
+- IndexedDB data is unencrypted at rest — do not store Confidential or Restricted data without application-layer encryption.
 
 ### Error Handling
 - Never expose stack traces, internal paths, database errors, or framework versions to end users.
@@ -139,3 +168,46 @@ All generated web application code must follow these rules:
 - Pin all dependencies to exact versions in lockfiles. Always commit lockfiles to version control.
 - Use `npm ci` (not `npm install`) in CI/CD for reproducible builds.
 - Review Dependabot/Renovate PRs before merging — do not auto-merge dependency updates.
+
+## Data Classification
+
+All generated code must handle data according to its classification:
+
+| Classification | Examples | Handling Requirements |
+|---|---|---|
+| **Public** | Marketing copy, open-source docs, public APIs | No special restrictions |
+| **Internal** | Architecture docs, internal APIs, employee directories | Do not commit to public repos. Restrict access to employees. |
+| **Confidential** | PII, financial data, customer data, health records | Encrypt at rest and in transit. Access-controlled. Audit-logged. Retention policies required. |
+| **Restricted** | Credentials, encryption keys, auth tokens, signing certificates | Secrets manager only. Never in code, logs, comments, or error messages. |
+
+When generating code that processes data, apply protections appropriate to the highest classification present.
+
+## Audit Logging
+
+Generated application code must log the following security-relevant events:
+- Authentication events: login, logout, failed login attempts, account lockouts.
+- Authorization failures: forbidden access attempts.
+- Data access: reads and writes to sensitive/confidential records (who, what, when).
+- Configuration changes: permission changes, feature flag toggles, admin actions.
+- Include correlation IDs in all log entries for request tracing.
+- Never log secrets, tokens, passwords, PII, or full credit card numbers.
+- Use structured logging (JSON) for machine parseability.
+
+## Incident Response
+
+### Secret Committed to Git
+1. Rotate the secret immediately — assume it is compromised.
+2. Remove from git history using `git filter-repo` (not `git filter-branch`).
+3. Force-push the cleaned history (with team notification).
+4. Audit access logs for unauthorized use of the compromised credential.
+5. Notify the security team per the company incident response process.
+
+### Vulnerable Dependency Discovered
+1. Assess severity using CVSS score.
+2. Patch within SLA: **Critical (9.0-10.0)**: 24 hours. **High (7.0-8.9)**: 7 days. **Medium (4.0-6.9)**: 30 days. **Low (0.1-3.9)**: 90 days.
+3. If no patch is available, evaluate mitigating controls or alternative libraries.
+
+### AI-Generated Insecure Code Merged
+1. Revert the PR immediately.
+2. Scan the codebase for similar patterns.
+3. Update CLAUDE.md rules or CodeGuard configuration to prevent recurrence.

@@ -132,6 +132,9 @@ HEALTHCHECK CMD curl -f http://localhost:3000/health || exit 1
 - Use private DNS zones (Route 53 Private Hosted Zones, Azure Private DNS, GCP Cloud DNS Private Zones) for internal service discovery.
 - Do not expose internal service hostnames in public DNS records.
 - Use CAA records to restrict which CAs can issue certificates for your domains.
+- **Subdomain takeover prevention**: Audit DNS records for dangling CNAMEs pointing to deprovisioned cloud resources (S3 buckets, Azure Blob, GitHub Pages, Heroku, etc.). Remove DNS records before deprovisioning the target resource, not after.
+- Include DNS record cleanup in infrastructure teardown procedures and IaC destroy workflows.
+- Periodically scan for unclaimed subdomains using tools like `subjack`, `nuclei`, or cloud-native inventory APIs.
 
 ## Egress Filtering
 
