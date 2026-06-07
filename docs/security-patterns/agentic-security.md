@@ -2,27 +2,9 @@
 
 Reference guide for securing AI coding agent deployments. Maps OWASP Top 10 for LLM Applications (2025) and OWASP Top 10 for Agentic Applications to Claude Code enterprise use.
 
-## OWASP LLM Top 10 (2025) Mapped to Claude Code
+## OWASP LLM Top 10 mapping
 
-| OWASP Risk | Claude Code Relevance | Mitigation | Enforcement Level |
-|---|---|---|---|
-| LLM01: Prompt Injection | Malicious content in repos, PRs, or dependencies could manipulate Claude Code behavior | Use managed-settings.json to restrict file reads and block destructive commands. Review CLAUDE.md changes in PRs. Use CODEOWNERS to protect governance files. Do not auto-approve code from untrusted sources. | **Platform** (deny rules) + Instruction (CLAUDE.md) + Process (code review) |
-| LLM02: Sensitive Information Disclosure | Claude Code may output secrets, PII, or internal architecture details in generated code | Enforce secrets management rules. Scan generated code for secrets pre-commit. Use managed-settings.json to deny reading .env and credential files. | **Platform** (deny Read rules) + CI/CD (secret scanning) |
-| LLM03: Supply Chain | Claude Code may suggest vulnerable, abandoned, or typosquatted packages | Require license and vulnerability verification for all dependency suggestions. Pin versions. Use Dependabot and SBOM generation. | Instruction (CLAUDE.md) + CI/CD (SCA scanning) |
-| LLM04: Data and Model Poisoning | Malicious training data is an Anthropic-level concern, not org-level | Monitor Anthropic's security advisories. Use the Compliance API to audit outputs. | External (Anthropic) |
-| LLM05: Improper Output Handling | Generated code may not sanitize its own outputs properly | CLAUDE.md rules require input validation and output escaping. CodeGuard rules reinforce this at the code pattern level. | Instruction (CLAUDE.md) + CI/CD (SAST) |
-| LLM06: Excessive Agency | Claude Code can execute commands, modify files, and access infrastructure | Use managed-settings.json to deny destructive commands. Disable bypassPermissions mode. Restrict tool access with allow/deny rules. | **Platform** (deny/ask rules) |
-| LLM07: System Prompt Leakage | CLAUDE.md files contain proprietary security policies | Treat CLAUDE.md as internal config. Do not commit sensitive policy details to public repos. Use managed-settings.json for the most sensitive rules. | Instruction (CLAUDE.md) + Process (repo access control) |
-| LLM08: Vector and Embedding Weaknesses | Not directly applicable to Claude Code | N/A for most deployments. | N/A |
-| LLM09: Misinformation | Claude Code may generate plausible but incorrect security implementations | Require code review for all AI-generated code. Use CodeGuard rules as a validation layer. Do not auto-merge AI-generated PRs. | Process (code review, branch protection) |
-| LLM10: Unbounded Consumption | Uncontrolled Claude Code usage drives costs and token burn | Use Anthropic's per-user spend caps. Monitor usage analytics. Set token limits in managed-settings.json environment variables. | **Platform** (spend caps) + Process (monitoring) |
-
-**Enforcement level key:**
-- **Platform** = Enforced by Claude Code runtime or infrastructure. Cannot be bypassed by prompt injection.
-- **Instruction** = Enforced by CLAUDE.md rules. Model-dependent — defense-in-depth, not guaranteed.
-- **CI/CD** = Enforced by server-side pipeline. Cannot be bypassed locally.
-- **Process** = Enforced by human review, branch protection, or CODEOWNERS.
-- **External** = Managed by Anthropic or third-party provider.
+The prescriptive rules and mitigations for each OWASP LLM Top 10 (2025) risk live in `CLAUDE.md` § AI Agent Security. This document covers the attack scenarios, defense-in-depth ordering, and compliance framework cross-reference that don't fit inside that table.
 
 ## Prompt Injection Defense In Depth
 
