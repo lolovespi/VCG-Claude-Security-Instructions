@@ -49,24 +49,18 @@ For organizations with MDM (Jamf, Intune, etc.):
       "Bash(rm -rf:*)",
       "Bash(sudo:*)",
       "Bash(git push --force:*)",
-      "Bash(git push -f:*)",
-      "Bash(git reset --hard:*)",
       "Read(**/.env)",
-      "Read(**/.env.*)",
-      "Read(**/*.pem)",
-      "Read(**/*.key)",
-      "Read(**/*id_rsa*)"
+      "Read(**/*.pem)"
     ],
     "ask": [
       "Bash(curl:*)",
-      "Bash(wget:*)",
-      "Bash(git push:*)",
-      "Bash(npm install:*)",
-      "Bash(pip install:*)"
+      "Bash(git push:*)"
     ]
   }
 }
 ```
+
+The example above is a starter set. For the full slim rule list (network exfiltration tooling, additional secret-file globs, container/IaC `ask` rules), copy from `slim/managed-settings-template.jsonc` and adapt.
 
 ### Settings Precedence (highest to lowest)
 

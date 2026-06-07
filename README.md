@@ -75,44 +75,19 @@ Without MDM, use **project-level** or **user-level** settings files to enforce p
     "deny": [
       "Bash(rm -rf:*)",
       "Bash(sudo:*)",
-      "Bash(su:*)",
-      "Bash(chmod 777:*)",
       "Bash(git push --force:*)",
-      "Bash(git push -f:*)",
-      "Bash(git reset --hard:*)",
-      "Bash(git clean -f:*)",
-      "Bash(nc:*)",
-      "Bash(ncat:*)",
-      "Bash(netcat:*)",
-      "Bash(telnet:*)",
-      "Bash(nslookup:*)",
-      "Bash(dig:*)",
-      "Bash(base64:*)",
       "Read(**/.env)",
-      "Read(**/.env.*)",
-      "Read(**/*secret*)",
-      "Read(**/*credential*)",
-      "Read(**/*password*)",
-      "Read(**/*.pem)",
-      "Read(**/*.key)",
-      "Read(**/*id_rsa*)"
+      "Read(**/*.pem)"
     ],
     "ask": [
       "Bash(curl:*)",
-      "Bash(wget:*)",
-      "Bash(ssh:*)",
-      "Bash(docker:*)",
-      "Bash(kubectl:*)",
-      "Bash(terraform apply:*)",
-      "Bash(terraform destroy:*)",
-      "Bash(git push:*)",
-      "Bash(npm publish:*)",
-      "Bash(npm install:*)",
-      "Bash(pip install:*)"
+      "Bash(git push:*)"
     ]
   }
 }
 ```
+
+The example above is a starter set. For the full enterprise rule list — network exfiltration tooling (`nc`, `ncat`, `telnet`, `nslookup`, `dig`, `base64`), additional secret-file globs, container/IaC `ask` rules — copy from `managed-settings-template.jsonc` and adapt. The same `permissions` schema works in `.claude/settings.json`.
 
 **User-level** (`~/.claude/settings.json` — applies to all your projects, not shared):
 

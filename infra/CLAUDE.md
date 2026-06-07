@@ -145,9 +145,10 @@ HEALTHCHECK CMD curl -f http://localhost:3000/health || exit 1
 
 ## Secure Logging and Monitoring
 
-- Log authentication events, authorization failures, and configuration changes.
-- Never log secrets, tokens, passwords, PII, or full credit card numbers.
-- Use structured logging (JSON) for machine parseability.
-- Sanitize log inputs to prevent log injection attacks.
-- Send logs to centralized, immutable storage (CloudWatch, Datadog, Splunk).
-- Set retention policies aligned with compliance requirements.
+For application-level audit logging requirements (which events to log, structured logging format, never logging secrets/PII), see root `CLAUDE.md` § Audit Logging. The rules below extend those for cloud and platform layers.
+
+- Send logs to centralized, immutable storage (CloudWatch Logs, Datadog, Splunk, Azure Monitor, GCP Cloud Logging). Use S3 Object Lock or Azure Immutable Blob Storage for tamper-evident long-term retention.
+- Sanitize log inputs at ingest (WAF, ALB access logs, API Gateway) to prevent log injection from reaching downstream parsers and SIEM rules.
+- Configure log retention policies in the platform itself (CloudWatch Logs retention, Log Analytics workspace retention) — do not rely on application-side deletion alone.
+- Enable VPC Flow Logs, CloudTrail / Azure Activity Log / GCP Audit Logs for control-plane events. These are distinct from application audit logs and are required for forensics.
+- Forward platform logs to the SIEM via native integrations (Kinesis → Splunk HEC, EventHub → Sentinel, Pub/Sub → Chronicle) rather than agent-based shipping where possible.
