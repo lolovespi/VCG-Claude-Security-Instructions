@@ -50,47 +50,7 @@ Malicious content tricks the model into generating code with a backdoor (e.g., a
 
 ### Tool Permission Governance
 
-Managed-settings.json should enforce the minimum permissions needed:
-
-```json
-{
-  "permissions": {
-    "deny": [
-      "Bash(rm -rf:*)",
-      "Bash(sudo:*)",
-      "Bash(su:*)",
-      "Bash(chmod 777:*)",
-      "Bash(git push --force:*)",
-      "Bash(git push -f:*)",
-      "Bash(git reset --hard:*)",
-      "Bash(nc:*)",
-      "Bash(ncat:*)",
-      "Bash(netcat:*)",
-      "Bash(telnet:*)",
-      "Bash(nslookup:*)",
-      "Bash(dig:*)",
-      "Bash(base64:*)",
-      "Read(**/.env)",
-      "Read(**/.env.*)",
-      "Read(**/*secret*)",
-      "Read(**/*credential*)",
-      "Read(**/*password*)",
-      "Read(**/*.pem)",
-      "Read(**/*.key)",
-      "Read(**/*id_rsa*)"
-    ],
-    "ask": [
-      "Bash(curl:*)",
-      "Bash(wget:*)",
-      "Bash(ssh:*)",
-      "Bash(git push:*)"
-    ],
-    "disableBypassPermissionsMode": "disable"
-  }
-}
-```
-
-See `managed-settings-template.jsonc` for the full template with all deny/ask rules. Customize based on your organization's risk tolerance and workflows.
+The authoritative deny/ask rules and `disableBypassPermissionsMode` setting live in `managed-settings-template.jsonc`. Customize that template — do not maintain a parallel copy here. The template uses the same `permissions` schema as `.claude/settings.json` and `managed-settings.json`.
 
 ### MCP Server Governance
 
@@ -102,11 +62,7 @@ Before connecting Claude Code to any MCP server:
 4. **Never pass credentials through MCP tool parameters.** Use the platform's auth mechanism.
 5. **Restrict MCP servers in managed-settings.json.** Use strictKnownMarketplaces to limit plugin sources.
 
-```json
-{
-  "strictKnownMarketplaces": ["https://approved-marketplace.company.com"]
-}
-```
+The `strictKnownMarketplaces` setting (a list of allowed plugin marketplace URLs) is configured in `managed-settings-template.jsonc`. See that file for the exact key and an example value.
 
 ### Human-in-the-Loop Requirements
 
